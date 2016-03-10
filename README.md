@@ -56,3 +56,54 @@ If file has .js or .node extension, it can be omitted.
 ```
 require("./modules/ModuleA")
 ```
+
+### Shared resource example
+This example will show how a module can be used as a shared resource and example of module isolation.
+There is directory with modules ModuleA, ModuleB and Shared. All three of them export same object with functions
+setValue and getValue. In out main.js file we can require ModuleA and ModuleB.
+```
+var moduleA = require("./modules/ModuleA");
+var moduleB = require("./modules/ModuleB");
+```
+Neither of these modules have their own implementation of setting and getting value but use Shared module. However,
+since everything in a module that is not assigned to module.export is private, we can't access to it directly through
+any of these two modules.
+```
+moduleA.shared; // undefined
+moduleB.shared; // undefined
+```
+Also if we would required Shared module, and tried to access i directly, it would give us undefined value since it is
+not part of export.
+```
+var shared = require("./modules/shared");
+shared.i; // undefined;
+shared.getValue(); // 0
+```
+
+However, since both of modules, moduleA and moduleB, require same object in this case it is shared. So changing value
+of shared object through one object it changes it for other.
+```
+moduleA.getValue(); // 0
+moduleB.getValue(); // 0
+moduleB.setValue(5);
+moduleA.getValue(); // 5
+moduleB.getValue(); // 5
+```
+
+#### Use case
+Something similar is used when implementing subscriber and publisher pattern which is used in
+[Flux](https://facebook.github.io/flux/).
+
+#### Note
+In this example Shared module returned object, so the value was shared. This does not have to be case. Depends on
+implementation of that module.
+
+### Conclusion
+Modules are not the newest thing in JavaScript. Something similar we already had with closures. But it doesn't reduce
+their value. They are definitely big this I really help development. A very useful thing to understand since they are
+ used in various libraries like gruntjs.
+
+### Note
+I hope this small code example and explanation could hep someone to understand and start with node modules. If I
+accidentally wrote something incorrect, please, do feel free to contact me to change it. Or you can update it and make
+ a pull request.
